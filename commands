@@ -2,3 +2,4 @@ DEBUG=express-user-management:* npm start
 
 
 https://github.com/hagopj13/node-express-boilerplate
+npx kill-port 3000
