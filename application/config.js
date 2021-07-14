@@ -2,7 +2,12 @@ const dotenv = require('dotenv');
 const path = require('path');
 const Joi = require('joi');
 
-dotenv.config({path: path.join(path.dirname(__dirname), '.env')});
+const base_dir  = path.dirname(__dirname)
+const application_dir = path.join(base_dir, 'application')
+
+const email_template_dir = path.join(application_dir, 'views' , 'emails')
+
+dotenv.config({path: path.join(base_dir, '.env')});
 
 
 const envVarsSchema = Joi.object().keys({
@@ -35,6 +40,8 @@ if (error) {
 module.exports = {
     APP_ENV: envVars.NODE_ENV,
     APP_PORT: envVars.PORT,
+    APPLICATION_DIR : application_dir,
+    BASE_DIR : base_dir,
     MONGODB_CONF: {
         CONNECTION_STRING: envVars.MONGODB_CONNECTION_STRING + (envVars.NODE_ENV === 'test' ? '-test' : ''),
         OPTIONS: {
@@ -59,7 +66,9 @@ module.exports = {
                 user: envVars.SMTP_EMAIL_USERNAME,
                 pass: envVars.SMTP_EMAIL_PASSWORD,
             },
+            secure: false
         },
+        template_dir: email_template_dir,
         from: envVars.DEFAULT_EMAIL_FROM,
-    },
+    }
 };

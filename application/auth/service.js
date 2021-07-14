@@ -1,11 +1,15 @@
 const db = require('../db')
-create_user = async (req, res) => {
-    const user_exists = await db.User.findOne({ email: req.body.email });
+const {ValidationError} = require('../errors/throwable')
+exports.create_user = async (data) => {
+    const user_exists = await db.User.findOne({ email: data.email });
     if (user_exists) {
         throw new ValidationError([{'email' : 'This email is not available'}])
     }
-    const user = new User(req.validate_data || req.body);
+    const user = new db.User(data);
     await user.save();
-    await send_verification_mail(user.email, 'DEFAULT_EMAIL_FROM_ADDRESS', 'Please verify your email address start using application.', {})
     return user
+}
+
+exports.verify_email_address = async (verify_token) => {
+    return await db.User.verify_email(verify_token)
 }
