@@ -1,9 +1,11 @@
 class GeneralError extends Error {
+
     constructor(message) {
         super();
         this.message = message;
         this.name = 'GeneralError';
     }
+
     getCode() {
         if (this instanceof BadRequest) {
             return 400;
@@ -26,8 +28,8 @@ class GeneralError extends Error {
 
 class ValidationError extends GeneralError{
 
-    getResponseData(){
-        return {errors: this.message, success : false};
+    getResponseData() {
+        return {errors: this.message, success: false};
     }
 
 }
@@ -35,11 +37,10 @@ class ValidationError extends GeneralError{
 class BadRequest extends ValidationError {
 
 }
+
 class NotFound extends GeneralError {
 
 }
-
-
 
 module.exports = {
     GeneralError,
