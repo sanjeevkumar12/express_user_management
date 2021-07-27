@@ -100,13 +100,15 @@ UserSchema.methods.comparePassword = async function(password) {
  * @returns string
  */
 
-UserSchema.methods.generateJWT = async function() {
+UserSchema.methods.generateJWT = async function(token_type='sign-up', ipAddress=null) {
     const today = new Date();
     const exp = new Date(today);
     exp.setDate(today.getDate() + 60);
     return await jwt.sign({
         id: this._id,
         email: this.email,
+        type: token_type,
+        ip: ipAddress,
         iat: Math.floor(Date.now() / 1000) - 30,
         exp: parseInt(exp.getTime() / 1000),
     }, settings.JWT_SETTINGS.secret);
@@ -118,7 +120,7 @@ UserSchema.methods.generateJWT = async function() {
  * @returns UserSchema
  */
 
-UserSchema.statics.findByToken = async (token) => {
+UserSchema.statics.findByToken = async function(token) {
     let User = this;
     let token_data = await jwt.verify(token, settings.JWT_SETTINGS.secret)
     return await User.findOne({"_id": token_data.id})
@@ -133,11 +135,12 @@ UserSchema.statics.findByToken = async (token) => {
 
 UserSchema.statics.verify_email = async function(token) {
     let token_data = await jwt.verify(token, settings.JWT_SETTINGS.secret)
-    if (!token_data.id || token_data.type === 'verify_email'){
+    if (!token_data.id || !token_data.type === 'verify-email'){
         throw new NotFound('The given token is either invalid or expired.');
     }
     let user = await this.findOne({"_id": token_data.id})
-    if(user && user.is_email_verified===false && token_data.type === 'verify_email'){
+    if(user && user.is_email_verified===false && token_data.type === 'verify-email'){
+        user.is_active = true;
         user.is_email_verified = true;
         await user.save()
         return user
@@ -165,13 +168,14 @@ UserSchema.statics.findByEmail = async function (email) {
  * @description Create User Token
  * @returns string
  */
-UserSchema.methods.generateResetPasswordToken = async function() {
+UserSchema.methods.reset_password_link = async function() {
     const today = new Date();
     const exp = new Date(today);
     exp.setDate(today.getDate() + settings.JWT_SETTINGS.resetPasswordExpirationMinutes);
     return await jwt.sign({
         id: this._id,
         email: this.email,
+        type: 'reset_password',
         exp: parseInt(exp.getTime() / 1000),
         iat: Math.floor(Date.now() / 1000) - 30,
     }, settings.JWT_SETTINGS.secret);
@@ -180,7 +184,7 @@ UserSchema.methods.generateResetPasswordToken = async function() {
 UserSchema.methods.verification_link = async function(req) {
     const today = new Date();
     const exp = new Date(today);
-    exp.setDate(today.getDate() + settings.JWT_SETTINGS.resetPasswordExpirationMinutes);
+    exp.setDate(today.getDate() + settings.JWT_SETTINGS.verifyEmailExpirationMinutes);
     let jwt_token = await jwt.sign({
         id: this._id,
         email: this.email,

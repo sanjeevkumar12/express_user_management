@@ -15,6 +15,9 @@ class GeneralError extends Error {
         if (this instanceof ValidationError) {
             return 422;
         }
+        if (this instanceof PermissionDenied) {
+            return 403;
+        }
         return 500;
     }
 
@@ -26,7 +29,7 @@ class GeneralError extends Error {
     }
 }
 
-class ValidationError extends GeneralError{
+class ValidationError extends GeneralError {
 
     getResponseData() {
         return {errors: this.message, success: false};
@@ -42,9 +45,14 @@ class NotFound extends GeneralError {
 
 }
 
+class PermissionDenied extends GeneralError {
+
+}
+
 module.exports = {
     GeneralError,
     BadRequest,
     NotFound,
-    ValidationError
+    ValidationError,
+    PermissionDenied
 };
