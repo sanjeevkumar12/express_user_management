@@ -1,6 +1,6 @@
 const db = require('../db')
 const {ValidationError, NotFound} = require('../errors/throwable')
-const {send_user_verification_email, } = require('../auth/emails')
+const {send_user_verification_email, send_user_forgot_password_link } = require('../auth/emails')
 
 exports.create_user = async (req) => {
     let data = req.validate_data || req.body
@@ -14,20 +14,44 @@ exports.create_user = async (req) => {
     return user
 }
 
+exports.get_user_by_email = async (req) => {
+    let data = req.validate_data || req.body
+    return db.User.findOne({ email: data.email });
+}
+
+
 exports.verify_email_address = async (verify_token) => {
     return await db.User.verify_email(verify_token)
 }
 
 
-exports.send_forgot_password_link = async (email) => {
-    let user = await db.User.findOne({email: email});
-    if (user){
-
+exports.send_forgot_password_link = async (req) => {
+    let data = req.validate_data || req.body
+    let user = await db.User.findOne({email: data.email});
+    if (user) {
+        await send_user_forgot_password_link(req, user)
     }
+    return true
 }
 
 exports.get_user_from_token = async (token) => {
    return await db.User.findByToken(token);
+}
+
+exports.reset_user_password = async (req) => {
+    let data = req.validate_data || req.body
+    let user = await db.User.findByToken(req.params['token_hash']);
+    if (!user) {
+        throw new NotFound('This is not valid link')
+    }
+    if (await user.comparePassword(data.new_password)) {
+        throw new ValidationError([{'auth_error': 'This new password is same as your old password.'}])
+    }
+    else{
+        user.password = data.new_password
+        user.save()
+    }
+    return true
 }
 
 exports.login_user = async (req) => {
@@ -41,7 +65,7 @@ exports.login_user = async (req) => {
         else if(user.is_blocked){
             throw new ValidationError([{'auth_error' : 'The given account is blocked please contact administrator for it.'}])
         }
-        else if (!user.comparePassword(data.password)){
+        else if (!await user.comparePassword(data.password)){
             throw new ValidationError([{'auth_error' : 'Entered Email and Password are not correct.'}])
         }else{
             return {

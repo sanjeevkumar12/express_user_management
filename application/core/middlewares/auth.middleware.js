@@ -8,8 +8,7 @@ const AuthenticationMiddleware = () => {
             const bearer = bearerHeader.split(' ');
             req.token = bearer[1];
             let user = await auth_service.get_user_from_token(req.token)
-            console.log(user)
-            if (user && user.is_email_verfied && user.is_active && !user.is_blocked){
+            if (user && user.is_email_verified && user.is_active && !user.is_blocked){
                 req.user = user
                 next();
             }else{

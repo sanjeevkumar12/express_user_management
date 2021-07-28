@@ -59,7 +59,7 @@ const UserSchema = mongoose.Schema(
         is_blocked: {type: Boolean, required: false, default: false}
     },
     {
-        timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+        timestamps: {createdAt: 'created_at', updatedAt: 'updated_at'},
         toJSON: {
             transform: (doc, ret) => {
                 ret.id = ret._id
@@ -75,7 +75,7 @@ const UserSchema = mongoose.Schema(
 /**
  * @description User Pre save hook
  */
-UserSchema.pre('save', async function(next){
+UserSchema.pre('save', async function (next) {
     const user = this;
     if (!user.isModified('password')) return next();
     const salt = await bcrypt.genSalt(10);
@@ -84,13 +84,12 @@ UserSchema.pre('save', async function(next){
 });
 
 
-
 /**
  * @description Compare User Password
  * @param password string
  * @returns boolean
  */
-UserSchema.methods.comparePassword = async function(password) {
+UserSchema.methods.comparePassword = async function (password) {
     return await bcrypt.compare(password, this.password);
 };
 
@@ -100,7 +99,7 @@ UserSchema.methods.comparePassword = async function(password) {
  * @returns string
  */
 
-UserSchema.methods.generateJWT = async function(token_type='sign-up', ipAddress=null) {
+UserSchema.methods.generateJWT = async function (token_type = 'sign-up', ipAddress = null) {
     const today = new Date();
     const exp = new Date(today);
     exp.setDate(today.getDate() + 60);
@@ -108,7 +107,7 @@ UserSchema.methods.generateJWT = async function(token_type='sign-up', ipAddress=
         id: this._id,
         email: this.email,
         type: token_type,
-        ip: ipAddress,
+        //ip: ipAddress,
         iat: Math.floor(Date.now() / 1000) - 30,
         exp: parseInt(exp.getTime() / 1000),
     }, settings.JWT_SETTINGS.secret);
@@ -120,8 +119,9 @@ UserSchema.methods.generateJWT = async function(token_type='sign-up', ipAddress=
  * @returns UserSchema
  */
 
-UserSchema.statics.findByToken = async function(token) {
+UserSchema.statics.findByToken = async function (token) {
     let User = this;
+    console.log(token)
     let token_data = await jwt.verify(token, settings.JWT_SETTINGS.secret)
     return await User.findOne({"_id": token_data.id})
 };
@@ -133,13 +133,13 @@ UserSchema.statics.findByToken = async function(token) {
  * @returns UserSchema|null
  */
 
-UserSchema.statics.verify_email = async function(token) {
+UserSchema.statics.verify_email = async function (token) {
     let token_data = await jwt.verify(token, settings.JWT_SETTINGS.secret)
-    if (!token_data.id || !token_data.type === 'verify-email'){
+    if (!token_data.id || !token_data.type === 'verify-email') {
         throw new NotFound('The given token is either invalid or expired.');
     }
     let user = await this.findOne({"_id": token_data.id})
-    if(user && user.is_email_verified===false && token_data.type === 'verify-email'){
+    if (user && user.is_email_verified === false && token_data.type === 'verify-email') {
         user.is_active = true;
         user.is_email_verified = true;
         await user.save()
@@ -147,10 +147,6 @@ UserSchema.statics.verify_email = async function(token) {
     }
     return false
 };
-
-
-
-
 
 
 /**
@@ -168,20 +164,24 @@ UserSchema.statics.findByEmail = async function (email) {
  * @description Create User Token
  * @returns string
  */
-UserSchema.methods.reset_password_link = async function() {
+UserSchema.methods.reset_password_link = async function (req) {
     const today = new Date();
     const exp = new Date(today);
     exp.setDate(today.getDate() + settings.JWT_SETTINGS.resetPasswordExpirationMinutes);
-    return await jwt.sign({
+    let jwt_token = await jwt.sign({
         id: this._id,
         email: this.email,
-        type: 'reset_password',
+        type: 'reset-password',
+        ip_address: req.ip,
         exp: parseInt(exp.getTime() / 1000),
         iat: Math.floor(Date.now() / 1000) - 30,
     }, settings.JWT_SETTINGS.secret);
+    let host = req.protocol + "://" + req.get('host')
+    let random_hash = new Date().getTime();
+    return `${host}${req.baseUrl}/forgot-password/${jwt_token}/reset/${random_hash}`;
 }
 
-UserSchema.methods.verification_link = async function(req) {
+UserSchema.methods.verification_link = async function (req) {
     const today = new Date();
     const exp = new Date(today);
     exp.setDate(today.getDate() + settings.JWT_SETTINGS.verifyEmailExpirationMinutes);
@@ -192,7 +192,7 @@ UserSchema.methods.verification_link = async function(req) {
         iat: Math.floor(Date.now() / 1000) - 30,
         exp: parseInt(exp.getTime() / 1000),
     }, settings.JWT_SETTINGS.secret);
-    let host = req.protocol+"://"+req.get('host')
+    let host = req.protocol + "://" + req.get('host')
     let random_hash = new Date().getTime();
     return `${host}${req.baseUrl}/verify/${jwt_token}/${random_hash}`;
 
