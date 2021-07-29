@@ -5,7 +5,7 @@ const cors = require('cors');
 const createError = require('http-errors');
 const logger = require('./core/logger')
 const connectDB = require('./core/db');
-const api_router = require('./api/routes/router');
+const api_router  = require('./routes');
 const handleErrors = require('../application/errors/handlers');
 const create_server = () => {
     const app = express();
@@ -15,7 +15,7 @@ const create_server = () => {
     app.use(express.urlencoded({extended: false}));
     app.use(compression())
     app.use(express.static(path.join(__dirname, 'public')));
-    app.use('/api', api_router)
+    app.use('/api', api_router())
     app.get('', function (req, res) {
         res.json({
             status: 'API Its Working',

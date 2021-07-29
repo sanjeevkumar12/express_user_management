@@ -1,4 +1,5 @@
 const Joi = require('joi');
+const {valid_password} = require('../../../core/helpers/validator')
 
 const RegisterSchema = Joi.object({
     first_name: Joi.string().label('First Name')
@@ -11,8 +12,12 @@ const RegisterSchema = Joi.object({
         .max(30)
         .required(),
 
-    password: Joi.string().required().label('Password')
-        .pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).strict(),
+    password: Joi.string().min(6).required().custom((value, helpers)=>{
+        if (!valid_password(value)){
+            return helpers.message('Password must be a minimum of 6 characters including number, Upper, Lower And  one special character')
+        }
+        return true
+    }).label('Password').strict(),
 
     confirm_password: Joi.string().required().label('Confirm Password').valid(Joi.ref('password')).strict(),
 
@@ -46,7 +51,7 @@ const ChangePasswordSchema = Joi.object({
 const ResetPasswordSchema = Joi.object({
     new_password: Joi.string().required().label('New Password')
         .pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).strict(),
-    confirm_password: Joi.string().required().label('Confirm Password').valid(Joi.ref('new_password')).strict(),
+    confirm_password: Joi.string().required().label('Confirm Password').valid(Joi.ref('new_password')).messages({ 'any.only': '{{#label}} does not match' }).strict(),
 }).options({ abortEarly: false })
 
 

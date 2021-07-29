@@ -51,3 +51,9 @@ exports.WEEKDAYS = [
     'FRI',
     'SAT'
 ]
+
+exports.AVAILABLE_SERVICES = [
+    'MedicalProcedure',
+    'MedicalTest',
+    'MedicalTherapy'
+]

@@ -14,9 +14,8 @@ exports.create_user = async (req) => {
     return user
 }
 
-exports.get_user_by_email = async (req) => {
-    let data = req.validate_data || req.body
-    return db.User.findOne({ email: data.email });
+exports.get_user_by_email = async (email) => {
+    return db.User.findOne({ email: email });
 }
 
 

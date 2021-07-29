@@ -1,12 +1,31 @@
 const mongoose = require('mongoose');
 const setting = require('../config')
+const mongoosePaginate = require('mongoose-paginate-v2');
 const connectDB = () => {
     mongoose.connect(setting.MONGODB_CONF.CONNECTION_STRING, setting.MONGODB_CONF.OPTIONS, ()=>{
         console.log('connected');
     });
+
+    mongoosePaginate.paginate.options = { 'customLabels' :{
+        totalDocs: 'items_count',
+        docs: 'items',
+        limit: 'item_per_page',
+        page: 'current_page',
+        nextPage: 'next',
+        prevPage: 'prev',
+        totalPages: 'total_pages',
+        pagingCounter: 'slNo',
+        meta: 'paginator'
+    },
+        limit: 20
+
+    };
+
+
     mongoose.Promise = global.Promise;
     const db = mongoose.connection;
     db.on('connected', function () {
+        mongoose.plugin(mongoosePaginate);
         console.log('Mongoose default connection open to ' + setting.MONGODB_CONF.CONNECTION_STRING);
     });
 
@@ -27,7 +46,7 @@ const connectDB = () => {
             process.exit(0);
         });
     });
-
+    mongoose.plugin(mongoosePaginate);
 };
 
 

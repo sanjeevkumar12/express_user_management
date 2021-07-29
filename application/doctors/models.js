@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
-const settings = require('../config')
-const {NotFound} = require('../errors/throwable');
-const {MEDICAL_SPECIALTIES, WEEKDAYS} = require('./constants')
+const validator = require('validator');
+const {MEDICAL_SPECIALTIES, WEEKDAYS , AVAILABLE_SERVICES} = require('./constants')
 
 const doctorQualificationSchema = mongoose.Schema({
     name: String,
@@ -64,7 +63,8 @@ const doctorOfficeSchema = mongoose.Schema({
             default: false
         },
         opening_hours: [{
-            day: {type: Date},
+            day: WEEKDAYS,
+            closed: Boolean,
             periods: {
                 start: {type: Date},
                 end: {type: Date}
@@ -90,14 +90,17 @@ doctorOfficeSchema.index({ "location": "2dsphere" });
  * @param UserSchema mongoose.Schema
  */
 const doctorSchema = mongoose.Schema({
-        license: String,
+        license: {
+            type: String,
+            unique: true
+        },
         user : {type: mongoose.Schema.Types.ObjectId,ref: 'users'},
         phone_number: String,
         avatar: {
             data: Buffer,
             contentType: String
         },
-        available_service: [String],
+        available_service: [AVAILABLE_SERVICES],
         medical_specialities: [MEDICAL_SPECIALTIES],
         educations : [
             doctorQualificationSchema
