@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const jwt = require('jsonwebtoken');
+const settings = require('../config')
 const {MEDICAL_SPECIALTIES, WEEKDAYS , AVAILABLE_SERVICES} = require('./constants')
 
 const doctorQualificationSchema = mongoose.Schema({
@@ -26,6 +28,7 @@ const doctorOfficeSchema = mongoose.Schema({
         phone_number: String,
         email: {
             type: String,
+            required: false,
             trim: true,
             lowercase: true,
             validate(value) {
@@ -55,8 +58,16 @@ const doctorOfficeSchema = mongoose.Schema({
           required: false
         },
         location: {
-            type: { type: String },
-            coordinates: [Number],
+            required: false,
+            type: {
+                type: String,
+                enum: ['Point'],
+                required: false
+            },
+            coordinates: {
+                type: [Number],
+                required: false
+            },
         },
         is_active: {
             type: Boolean,
@@ -86,8 +97,8 @@ const doctorOfficeSchema = mongoose.Schema({
 doctorOfficeSchema.index({ "location": "2dsphere" });
 
 /**
- * @description User Model Schema
- * @param UserSchema mongoose.Schema
+ * @description Doctor Model Schema
+ * @param doctorSchema mongoose.Schema
  */
 const doctorSchema = mongoose.Schema({
         license: {
@@ -131,8 +142,33 @@ const doctorSchema = mongoose.Schema({
         }
     }
 )
+doctorSchema.statics.findByToken = async function (token) {
+    let Doctor = this;
+    let token_data = await jwt.verify(token, settings.JWT_SETTINGS.secret)
+    return Doctor.findOne({"user": token_data.id}).populate('user')
+};
 
 
-exports.Doctor = mongoose.model('doctors', doctorSchema);
-exports.DoctorQualification = mongoose.model('doctor_qualifications', doctorQualificationSchema)
-exports.DoctorOffice = mongoose.model('doctor_offices', doctorOfficeSchema)
+
+/**
+ * @description Create User Token
+ * @returns string
+ */
+
+doctorSchema.methods.add_office = async function (data) {
+    let office_address = new DoctorOffice(data)
+    this.offices.push(office_address)
+    return this.save()
+};
+
+
+
+const Doctor = mongoose.model('doctors', doctorSchema);
+const DoctorQualification = mongoose.model('doctor_qualifications', doctorQualificationSchema)
+const DoctorOffice = mongoose.model('doctor_offices', doctorOfficeSchema)
+
+module.exports = {
+    Doctor,
+    DoctorQualification,
+    DoctorOffice
+}

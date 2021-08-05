@@ -37,6 +37,53 @@ const DoctorCreateSchema = Joi.object({
         .email()
 }).options({abortEarly: false})
 
+const DoctorOfficeCreateSchema = Joi.object({
+    name: Joi.string().label('Name')
+        .min(3)
+        .max(30)
+        .required(),
+    description : Joi.string().label('Description'),
+    phone_number : Joi.string().label('Phone Number').regex(/^[0-9]{10}$/)
+        .messages({'string.pattern.base': `Phone number must have 10 digits.`}).required(),
+    email: Joi.string().email({ tlds: { allow: false } }),
+    address_line_1: Joi.string().required(),
+    address_line_2: Joi.string(),
+    zipcode: Joi.string(),
+    state: Joi.string(),
+    location_mark: Joi.string(),
+    location: Joi.object().keys({
+        type : Joi.string().label('Location Type').description('Polygon or Point'),
+        coordinates : Joi.array().items(Joi.number().precision(8)).length(2)
+            .label('Co-ordinates [Latitude & Longitude]'),
+    }).and('type', 'coordinates').label('Location on Map'),
+    opening_hours : Joi.array().items(Joi.object().keys({
+        day : Joi.string().uppercase().valid(...WEEKDAYS),
+        closed: Joi.boolean().default(false),
+        periods : Joi.object().keys({
+            start : Joi.date().required(),
+            end : Joi.date().required()
+        }).and('start', 'end').label('Must have start and end time')
+    })),
+    is_active: Joi.string().default(true)
+});
+
+// Joi.object({
+//     type: Joi.string()
+//         .required()
+//         .valid(["Point"]),
+//     coordinates: Joi.array().ordered([
+//         Joi.number()
+//             .min(-180)
+//             .max(180)
+//             .required(),
+//         Joi.number()
+//             .min(-90)
+//             .max(90)
+//             .required()
+//     ])
+// }).description("Please use this format [ longitude, latitude]"),
+
 module.exports = {
-    DoctorCreateSchema
+    DoctorCreateSchema,
+    DoctorOfficeCreateSchema
 }

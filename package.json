@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "./node_modules/.bin/nodemon ./bin/www",
+    "wstart": "nodemon bin/www",
     "startdev": "./bin/www"
   },
   "dependencies": {

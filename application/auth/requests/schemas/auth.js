@@ -27,8 +27,7 @@ const RegisterSchema = Joi.object({
 }).options({ abortEarly: false })
 
 const LoginSchema = Joi.object({
-    password: Joi.string().required().label('Password')
-        .pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).strict(),
+    password: Joi.string().required().label('Password'),
     email: Joi.string().label('Email').required()
         .email()
 }).options({ abortEarly: false })

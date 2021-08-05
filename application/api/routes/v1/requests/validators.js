@@ -8,3 +8,4 @@ exports.login_schema = PostRequestMiddleware(AuthRequestSchema.LoginSchema, 'bod
 exports.change_password = PostRequestMiddleware(AuthRequestSchema.ChangePasswordSchema , 'body')
 exports.reset_password = PostRequestMiddleware(AuthRequestSchema.ResetPasswordSchema , 'body')
 exports.doctor_register = PostRequestMiddleware(DoctorSchema.DoctorCreateSchema , 'body')
+exports.doctor_add_office = PostRequestMiddleware(DoctorSchema.DoctorOfficeCreateSchema , 'body')

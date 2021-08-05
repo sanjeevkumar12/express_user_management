@@ -121,9 +121,8 @@ UserSchema.methods.generateJWT = async function (token_type = 'sign-up', ipAddre
 
 UserSchema.statics.findByToken = async function (token) {
     let User = this;
-    console.log(token)
     let token_data = await jwt.verify(token, settings.JWT_SETTINGS.secret)
-    return await User.findOne({"_id": token_data.id})
+    return User.findOne({"_id": token_data.id})
 };
 
 

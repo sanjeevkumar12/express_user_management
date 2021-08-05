@@ -22,13 +22,29 @@ const create_doc = async (req) => {
     return doc.save()
 }
 
+const verify_email_address =  async (verify_token) => {
+    return auth_service.verify_email_address(verify_token)
+}
+
 const list = async (req) => {
     return db.Doctor.paginate()
 }
 
+const get_doctor_from_token = async (token) => {
+    return db.Doctor.findByToken(token);
+}
+
+const add_office_to_doctor = async (req, doctor) => {
+    let data = req.validate_data || req.body
+    return doctor.add_office(data)
+}
+
 module.exports = {
     create_doc,
-    list
+    list,
+    verify_email_address,
+    get_doctor_from_token,
+    add_office_to_doctor
 }
 
 
