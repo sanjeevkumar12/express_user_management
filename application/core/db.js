@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const setting = require('../config')
 const mongoosePaginate = require('mongoose-paginate-v2');
+const slug = require('mongoose-slug-generator');
 const connectDB = () => {
     mongoose.connect(setting.MONGODB_CONF.CONNECTION_STRING, setting.MONGODB_CONF.OPTIONS, ()=>{
         console.log('connected');
@@ -47,6 +48,7 @@ const connectDB = () => {
         });
     });
     mongoose.plugin(mongoosePaginate);
+    mongoose.plugin(slug);
 };
 
 

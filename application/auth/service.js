@@ -6,7 +6,7 @@ exports.create_user = async (req) => {
     let data = req.validate_data || req.body
     const user_exists = await db.User.findOne({ email: data.email });
     if (user_exists) {
-        throw new ValidationError([{'email' : 'This email is not available'}])
+        throw new ValidationError({'email' : 'This email is not available'})
     }
     const user = new db.User(data);
     await user.save();

@@ -73,6 +73,7 @@ const doctorOfficeSchema = mongoose.Schema({
             type: Boolean,
             default: false
         },
+        slug: { type: String, slug: ["name","description"] },
         opening_hours: [{
             day: WEEKDAYS,
             closed: Boolean,
@@ -130,6 +131,7 @@ const doctorSchema = mongoose.Schema({
             type: Date,
             required: false
         },
+        slug: { type: String, slug: ["license"] , unique: true },
         offices: [doctorOfficeSchema]
     }, {
         timestamps: {createdAt: 'created_at', updatedAt: 'updated_at'},
@@ -142,6 +144,11 @@ const doctorSchema = mongoose.Schema({
         }
     }
 )
+
+doctorSchema.pre("save", function(next) {
+    this.slug = this.user.slug + '-' + this.license;
+    next();
+});
 doctorSchema.statics.findByToken = async function (token) {
     let Doctor = this;
     let token_data = await jwt.verify(token, settings.JWT_SETTINGS.secret)

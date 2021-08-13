@@ -16,7 +16,7 @@ const RegisterSchema = Joi.object({
         if (!valid_password(value)){
             return helpers.message('Password must be a minimum of 6 characters including number, Upper, Lower And  one special character')
         }
-        return true
+        return value
     }).label('Password').strict(),
 
     confirm_password: Joi.string().required().label('Confirm Password').valid(Joi.ref('password')).strict(),

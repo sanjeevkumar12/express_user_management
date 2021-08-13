@@ -5,6 +5,7 @@ const {doctor_register, doctor_add_office} = require('./requests/validators');
 const {user_auth_middleware, doc_auth_middleware} = require('../../../core/middlewares/auth.middleware');
 const doctor_service = require('../../../doctors/service');
 
+
 doc_router.post('', doctor_register, async (req, res, next) => {
     try {
         return res.status(201).json({

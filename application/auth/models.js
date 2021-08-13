@@ -56,7 +56,8 @@ const UserSchema = mongoose.Schema(
             default: false,
         },
         is_active: {type: Boolean, required: false, default: false},
-        is_blocked: {type: Boolean, required: false, default: false}
+        is_blocked: {type: Boolean, required: false, default: false},
+        slug: { type: String, slug: ["first_name" , "last_name"] , unique: true }
     },
     {
         timestamps: {createdAt: 'created_at', updatedAt: 'updated_at'},
