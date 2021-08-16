@@ -2,10 +2,10 @@ const dotenv = require('dotenv');
 const path = require('path');
 const Joi = require('joi');
 
-const base_dir  = path.dirname(__dirname)
-const application_dir = path.join(base_dir, 'application')
+const base_dir  = path.dirname(__dirname);
+const application_dir = path.join(base_dir, 'application');
 
-const email_template_dir = path.join(application_dir, 'views' , 'emails')
+const email_template_dir = path.join(application_dir, 'views' , 'emails');
 
 dotenv.config({path: path.join(base_dir, '.env')});
 

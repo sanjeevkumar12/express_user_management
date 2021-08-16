@@ -59,13 +59,13 @@ exports.login_user = async (req) => {
     if(user){
         if(!user.is_email_verified){
             await send_user_verification_email(req, user)
-            throw new ValidationError([{'auth_error' : 'The email associated with this account is not verified. Please verify your email address.'}])
+            throw new ValidationError({'auth_error' : 'The email associated with this account is not verified. Please verify your email address.'})
         }
         else if(user.is_blocked){
-            throw new ValidationError([{'auth_error' : 'The given account is blocked please contact administrator for it.'}])
+            throw new ValidationError({'auth_error' : 'The given account is blocked please contact administrator for it.'})
         }
         else if (!await user.comparePassword(data.password)){
-            throw new ValidationError([{'auth_error' : 'Entered Email and Password are not correct.'}])
+            throw new ValidationError({'auth_error' : 'Entered Email and Password are not correct.'})
         }else{
             return {
                 user,
@@ -73,6 +73,6 @@ exports.login_user = async (req) => {
             }
         }
     }else{
-        throw new ValidationError([{'auth_error' : 'Entered Email and Password are not correct.'}])
+        throw new ValidationError({'auth_error' : 'Entered Email and Password are not correct.'})
     }
 }
