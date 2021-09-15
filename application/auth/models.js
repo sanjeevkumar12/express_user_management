@@ -160,11 +160,8 @@ UserSchema.statics.findByEmail = async function (email) {
     return await User.findOne({"email": email});
 };
 
-/**
- * @description Create User Token
- * @returns string
- */
-UserSchema.methods.reset_password_link = async function (req) {
+
+UserSchema.methods.reset_password_data = async function (req) {
     const today = new Date();
     const exp = new Date(today);
     exp.setDate(today.getDate() + settings.JWT_SETTINGS.resetPasswordExpirationMinutes);
@@ -176,10 +173,32 @@ UserSchema.methods.reset_password_link = async function (req) {
         exp: parseInt(exp.getTime() / 1000),
         iat: Math.floor(Date.now() / 1000) - 30,
     }, settings.JWT_SETTINGS.secret);
-    let host = req.protocol + "://" + req.get('host')
     let random_hash = new Date().getTime();
+    return {
+        jwt_token,
+        random_hash
+    }
+}
+
+
+/**
+ * @description Create User Token
+ * @returns string
+ */
+UserSchema.methods.reset_password_link = async function (req) {
+
+    const data = this.reset_password_data(req)
+    const today = new Date();
+    const exp = new Date(today);
+    exp.setDate(today.getDate() + settings.JWT_SETTINGS.resetPasswordExpirationMinutes);
+    let jwt_token = data['jwt_token']
+    let host = req.protocol + "://" + req.get('host')
+    let random_hash = data['random_hash']
     return `${host}${req.baseUrl}/forgot-password/${jwt_token}/reset/${random_hash}`;
 }
+
+
+
 
 UserSchema.methods.verification_link = async function (req) {
     const today = new Date();

@@ -28,7 +28,7 @@ exports.send_forgot_password_link = async (req) => {
     let data = req.validate_data || req.body
     let user = await db.User.findOne({email: data.email});
     if (user) {
-        await send_user_forgot_password_link(req, user)
+        await send_user_forgot_password_link(req, user, data.client_url)
     }
     return true
 }
