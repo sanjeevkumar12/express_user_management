@@ -53,6 +53,25 @@ exports.reset_user_password = async (req) => {
     return true
 }
 
+exports.change_user_password = async (req) => {
+    let data = req.validate_data || req.body
+    let user = req.user
+    if (!user) {
+        throw new NotFound('This is not valid link')
+    }
+    if (!await user.comparePassword(data.current_password)) {
+        throw new ValidationError({'current_password': 'Your current password is wrong.'})
+    }
+    else if (!await user.comparePassword(data.new_password)) {
+        throw new ValidationError({'new_password': 'This new password is same as your old password.'})
+    }
+    else{
+        user.password = data.new_password
+        user.save()
+    }
+    return true
+}
+
 exports.login_user = async (req) => {
     let data = req.validate_data || req.body
     let user = await db.User.findOne({email: data.email});

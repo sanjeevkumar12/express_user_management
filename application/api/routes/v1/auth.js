@@ -1,7 +1,7 @@
 const express = require('express');
 const logger = require('../../../core/logger');
 const auth_router = express.Router();
-const {register_schema, forgot_password_schema , login_schema , reset_password} = require('./requests/validators');
+const {register_schema, forgot_password_schema , login_schema , reset_password, change_password} = require('./requests/validators');
 const {user_auth_middleware} = require('../../../core/middlewares/auth.middleware');
 const auth_service  = require('../../../auth/service');
 
@@ -18,6 +18,18 @@ auth_router.post('/register', register_schema, async (req, res, next) => {
 
         let message = 'Please check your email to verify your email address.'
         res.status(201).json({user, message
+            , success: true})
+    }catch (error){
+        next(error)
+    }
+})
+
+auth_router.post('/change-password',user_auth_middleware, change_password, async (req, res, next) => {
+    try{
+        let user = await auth_service.change_user_password(req)
+
+        let message = 'Password change successfully.'
+        res.status(200).json({user, message
             , success: true})
     }catch (error){
         next(error)
