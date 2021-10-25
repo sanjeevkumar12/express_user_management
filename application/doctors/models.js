@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const settings = require('../config')
-const {MEDICAL_SPECIALTIES, WEEKDAYS , AVAILABLE_SERVICES} = require('./constants')
+const {WEEKDAYS , MedicalServices, MedicalSpeciality} = require('./constants')
 
 const doctorQualificationSchema = mongoose.Schema({
     name: String,
@@ -112,8 +112,8 @@ const doctorSchema = mongoose.Schema({
             data: Buffer,
             contentType: String
         },
-        available_service: [AVAILABLE_SERVICES],
-        medical_specialities: [MEDICAL_SPECIALTIES],
+        available_service: [MedicalServices.choices],
+        medical_specialities: [MedicalSpeciality.choices],
         educations : [
             doctorQualificationSchema
         ],

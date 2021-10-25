@@ -1,5 +1,5 @@
 const Joi = require('joi');
-const {MEDICAL_SPECIALTIES, WEEKDAYS, AVAILABLE_SERVICES} = require('../../constants')
+const {MedicalSpeciality, WEEKDAYS, MedicalServices} = require('../../constants')
 const {valid_password} = require('../../../core/helpers/validator')
 
 const DoctorCreateSchema = Joi.object({
@@ -9,11 +9,11 @@ const DoctorCreateSchema = Joi.object({
         .required(),
 
     phone_number: Joi.string().label('Phone Number')
-        .min(3)
-        .max(30)
+        .min(8)
+        .max(12)
         .required(),
-    available_service : Joi.array().label('Services Offered').items(Joi.string().valid(...AVAILABLE_SERVICES)).required(),
-    medical_specialities:Joi.array().label('Medical Specialities').items(Joi.string().valid(...MEDICAL_SPECIALTIES)).required(),
+    available_service : Joi.array().label('Services Offered').items(Joi.string().valid(...MedicalServices.choices)).required(),
+    medical_specialities:Joi.array().label('Medical Specialities').items(Joi.string().valid(...MedicalSpeciality.choices)).required(),
     date_of_birth: Joi.date().required().label('Date of Birth').options({convert: true}),
     first_name: Joi.string().label('First Name')
         .min(3)

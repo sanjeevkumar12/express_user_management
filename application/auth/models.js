@@ -55,6 +55,10 @@ const UserSchema = mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        is_staff : {
+            type: Boolean,
+            default: false,
+        },
         is_active: {type: Boolean, required: false, default: false},
         is_blocked: {type: Boolean, required: false, default: false},
         slug: { type: String, slug: ["first_name" , "last_name"] , unique: true }

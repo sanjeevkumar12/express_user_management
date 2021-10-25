@@ -1,6 +1,7 @@
 const db = require('../db')
 const {ValidationError, NotFound} = require('../errors/throwable')
 const auth_service = require('../auth/service')
+const constants = require('./constants');
 
 const create_doc = async (req) => {
     let doc_exists = await db.Doctor.findOne({license: req.validate_data.license})
@@ -39,12 +40,20 @@ const add_office_to_doctor = async (req, doctor) => {
     return doctor.add_office(data)
 }
 
+const configuration = async() => {
+    return {
+        medical_specialties: constants.MedicalSpeciality.labels,
+        medical_services : constants.MedicalServices.labels
+    }
+}
+
 module.exports = {
     create_doc,
     list,
     verify_email_address,
     get_doctor_from_token,
-    add_office_to_doctor
+    add_office_to_doctor,
+    configuration
 }
 
 
